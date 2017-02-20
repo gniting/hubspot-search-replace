@@ -28,7 +28,7 @@ replacement_string        = ""
 hubspot_blog_api_base_url = "https://api.hubapi.com/content/api/v2/blog-posts?hapikey="
 counter                   = 0
 
-# --- Pick up all the blog posts from the API
+# Pick up all the blog posts from the API
 api_response = requests.get(hubspot_blog_api_base_url + api_key + api_params + blog_id)
 blog_data = api_response.json()
 
