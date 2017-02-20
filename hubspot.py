@@ -7,27 +7,30 @@ import os
 # --- Alter the variables below to fit your needs
 
 # your Hubspot API key
-api_key = ""
+api_key                   = ""
 
 # The numberic ID of the blog
-blog_id = ""
+blog_id                   = ""
 
 # If you want/need to pass any additional HubSpot blog post API params
-api_params = "&state=PUBLISHED&limit=500&content_group_id="
+api_params                = "&state=PUBLISHED&limit=500&content_group_id="
+
+# Switch to true if you want a local copy of the downloaded post JSON
+# before it is updated
+save_local                = False
 
 # These should be obvious. The code will look for the EXACT string
-string_to_replace = ""
-replacement_string = ""
+string_to_replace         = ""
+replacement_string        = ""
 
 # --- Should not have to make any changes beyond this point
 
 hubspot_blog_api_base_url = "https://api.hubapi.com/content/api/v2/blog-posts?hapikey="
-counter = 0
+counter                   = 0
 
 # --- Pick up all the blog posts from the API
 api_response = requests.get(hubspot_blog_api_base_url + api_key + api_params + blog_id)
 blog_data = api_response.json()
-
 
 class bcolors:
     HEADER    = '\033[95m'
@@ -54,17 +57,16 @@ def update_post(payload, post_id):
         print bcolors.FAIL + "POST response content: " + put_request.content + bcolors.ENDC
     return;
 
-
 def save_post(payload):
     '''
-    The untouched downloaded JSON content will be saved into a file with post_id is it's name.
-    This file will be placed in the "orignals" folder.
+    The untouched downloaded JSON content will be saved into a file with post_id as its name.
+    This file will be placed in a folder called "originals". The folder will be created if it
+    does not exist.
     '''
     if not os.path.exists('originals'):
         os.makedirs('originals')
     with open('originals/' + str(payload['analytics_page_id']) + '.json', 'w') as outfile:
         json.dump(payload, outfile)
-
     return;
 
 # --- Iterate through each post and if a match is found, make the requried string replacement
@@ -82,8 +84,9 @@ for post in blog_data['objects']:
             corrected_data[key[0]] = json_to_string
             print bcolors.BLUE + "Original content:\n" + key[1] + bcolors.ENDC
             print bcolors.GREEN + "Updated content:\n" + json_to_string + bcolors.ENDC
-            save_post(post) # save original post data to a file just in case...
-            update_post(json.dumps(corrected_data), post['analytics_page_id']) # make the update
+            if save_local is True:
+                save_post(post)
+            update_post(json.dumps(corrected_data), post['analytics_page_id'])
 
     if 'corrected_data' not in locals():
         print bcolors.FAIL + "\nFound nothing to update in this post...\n" + bcolors.ENDC
