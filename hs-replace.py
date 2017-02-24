@@ -74,17 +74,18 @@ try:
         print bcolors.HEADER + "Post title: " + post['html_title'] + bcolors.ENDC
         print bcolors.HEADER + "Post URL: " + post['url'] + bcolors.ENDC
         for key in post.items():
-            if type(key[1]) == unicode and string_to_replace in key[1]:
-                corrected_data = {}
-                print bcolors.BOLD + "\nFound string in item: " + key[0] + bcolors.ENDC
-                json_to_string = str(key[1].encode('utf-8', 'replace'))
-                json_to_string = json_to_string.replace(string_to_replace, replacement_string)
-                corrected_data[key[0]] = json_to_string
-                print bcolors.BLUE + "Original content:\n" + key[1] + bcolors.ENDC
-                print bcolors.GREEN + "Updated content:\n" + json_to_string + bcolors.ENDC
-                if save_local is True:
-                    save_post(post)
-                update_post(json.dumps(corrected_data), post['analytics_page_id'])
+            if (key[0] != "published_url" and key[0] != "url" and key[0] != "slug"):
+                if type(key[1]) == unicode and string_to_replace in key[1]:
+                    corrected_data = {}
+                    print bcolors.BOLD + "\nFound string in item: " + key[0] + bcolors.ENDC
+                    json_to_string = str(key[1].encode('utf-8', 'replace'))
+                    json_to_string = json_to_string.replace(string_to_replace, replacement_string)
+                    corrected_data[key[0]] = json_to_string
+                    print bcolors.BLUE + "Original content:\n" + key[1] + bcolors.ENDC
+                    print bcolors.GREEN + "Updated content:\n" + json_to_string + bcolors.ENDC
+                    if save_local is True:
+                        save_post(post)
+                    update_post(json.dumps(corrected_data), post['analytics_page_id'])
 
         if 'corrected_data' not in locals():
             print bcolors.FAIL + "\nFound nothing to update in this post...\n" + bcolors.ENDC
